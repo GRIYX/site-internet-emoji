@@ -7,197 +7,88 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    
     <style>
-        /* --- 2. REFONTE VISUELLE : Variables de design --- */
         :root {
             --font-family: 'Inter', sans-serif;
-            --bg-color: #f4f7f9;
-            --card-color: #ffffff;
-            --text-color: #2c3e50;
-            --text-light-color: #7f8c9b;
-            --primary-color: #3498db;
-            --primary-dark-color: #2980b9;
-            --border-color: #e_a_ecf0;
-            --shadow-color: rgba(44, 62, 80, 0.1);
-
-            --sidebar-width: 280px;
-            --ad-width: 200px;
-            --transition-speed: 0.35s;
+            --bg-color: #f4f7f9; --card-color: #ffffff; --text-color: #2c3e50;
+            --text-light-color: #7f8c9b; --primary-color: #3498db; --primary-dark-color: #2980b9;
+            --border-color: #e_a_ecf0; --shadow-color: rgba(44, 62, 80, 0.1);
+            --sidebar-width: 280px; --ad-width: 200px; --transition-speed: 0.35s;
         }
 
-        /* --- Structure générale --- */
+        html.dark-mode {
+            --bg-color: #1e272e; --card-color: #2c3a47; --text-color: #f1f2f6;
+            --text-light-color: #808e9b; --border-color: #4a6572;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
+
         body {
-            margin: 0;
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
+            margin: 0; font-family: var(--font-family); background-color: var(--bg-color);
             color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* --- 1. NOUVELLE STRUCTURE POUR PUBS ET CORRECTION DU BUG --- */
         .page-container {
-            display: grid;
-            height: 100vh;
-            /* Colonnes: pub | menu | contenu | pub */
+            display: grid; height: 100vh;
             grid-template-columns: var(--ad-width) var(--sidebar-width) 1fr var(--ad-width);
-            transition: grid-template-columns var(--transition-speed) ease-in-out;
         }
-
-        /* Quand le menu est caché, sa colonne passe à 0 */
-        body.sidebar-collapsed .page-container {
-            grid-template-columns: var(--ad-width) 0px 1fr var(--ad-width);
-        }
-
-        .ad-space {
-            background-color: rgb(255, 255, 255);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-            color: var(--text-light-color);
-        }
-
-        /* --- 3. NOUVEAU MENU DE CATÉGORIES --- */
-        .sidebar {
-            background-color: var(--card-color);
-            border-right: 1px solid var(--border-color);
-            padding: 25px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden; /* Important pour cacher le contenu pendant l'animation */
-        }
-        .sidebar h2 { 
-            margin: 0 0 20px 0; 
-            font-size: 1.5em; 
-            color: var(--text-color);
-            padding-left: 10px;
-        }
+        
+        .ad-space { background-color: #e_a_ecf0; display: flex; align-items: center; justify-content: center; font-size: 0.9em; color: var(--text-light-color); }
+        .sidebar { background-color: var(--card-color); border-right: 1px solid var(--border-color); padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: background-color 0.3s ease; }
+        .sidebar h2 { margin: 0 0 20px 0; font-size: 1.5em; color: var(--text-color); padding-left: 10px; }
         .sidebar ul { list-style-type: none; padding: 0; margin: 0; }
-        .sidebar li a { 
-            display: block; 
-            padding: 12px 20px; 
-            margin-bottom: 5px;
-            text-decoration: none; 
-            color: var(--text-light-color); 
-            font-size: 1em;
-            font-weight: 500;
-            border-radius: 8px; 
-            transition: all 0.2s ease;
-        }
-        .sidebar li a:hover {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        .sidebar li a.active {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-        }
+        .sidebar li a { display: block; padding: 12px 20px; margin-bottom: 5px; text-decoration: none; color: var(--text-light-color); font-size: 1em; font-weight: 500; border-radius: 8px; transition: all 0.2s ease; }
+        .sidebar li a:hover { background-color: var(--bg-color); color: var(--text-color); }
+        .sidebar li a.active { background-color: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
         
-        .sidebar-arrow {
-            position: absolute;
-            right: -15px; top: 50%;
-            transform: translateY(-50%);
-            width: 30px; height: 50px;
-            background-color: var(--text-color);
-            color: white;
-            cursor: pointer;
-            border-radius: 0 10px 10px 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2em;
-            transition: all var(--transition-speed) ease-in-out;
-        }
-
-        body.sidebar-collapsed .sidebar-arrow {
-            transform: translateY(-50%) rotate(180deg);
-        }
-        
-        /* --- Contenu Principal (avec refonte) --- */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        header { 
-            background-color: var(--card-color); 
-            color: var(--text-color);
-            padding: 20px 40px; 
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .main-content { display: flex; flex-direction: column; overflow: hidden; }
+        header { background-color: var(--card-color); color: var(--text-color); padding: 20px 40px; text-align: center; border-bottom: 1px solid var(--border-color); position: relative; transition: background-color 0.3s ease, border-color 0.3s ease; }
         header h1 { margin: 0; font-size: 2em; font-weight: 700; }
-        .search-container { padding: 25px 40px; background-color: var(--card-color); }
-        #search-input { 
-            width: 100%; 
-            padding: 16px 20px; 
-            font-size: 1em;
-            font-family: var(--font-family);
-            border-radius: 10px; 
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
+        
+        .theme-switcher {
+            position: absolute; top: 50%; right: 40px; transform: translateY(-50%);
+            background: none; border: 2px solid var(--text-light-color); color: var(--text-light-color);
+            border-radius: 50%; width: 40px; height: 40px; font-size: 1.5em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;
         }
+        .theme-switcher:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-50%) scale(1.1); }
+        
+        .search-container { padding: 25px 40px; background-color: var(--card-color); transition: background-color 0.3s ease; }
+        #search-input { width: 100%; padding: 16px 20px; font-size: 1em; font-family: var(--font-family); border-radius: 10px; border: 1px solid var(--border-color); box-sizing: border-box; background-color: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; }
         #search-input:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
-        
-        .emoji-grid-container { flex-grow: 1; overflow-y: auto; padding: 40px; }
-        .emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 25px; }
-        
-        /* Refonte de la carte émoji */
-        .emoji-card {
-            background-color: var(--card-color);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 5px var(--shadow-color);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+        .emoji-grid-container { flex-grow: 1; overflow-y: auto; padding: 40px; position: relative; }
+        .virtual-scroll-spacer { width: 100%; position: relative; }
+        .emoji-grid { display: grid; gap: 25px; position: absolute; top: 0; left: 0; right: 0; }
+        .emoji-card { background-color: var(--card-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; border: 1px solid var(--border-color); box-shadow: 0 2px 5px var(--shadow-color); transition: all 0.2s ease; }
         .emoji-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px var(--shadow-color); }
-        
-        .favorite-btn {
-            position: absolute; top: 10px; right: 10px; font-size: 24px;
-            cursor: pointer; background: none; border: none;
-            color: #bdc3c7;
-            transition: transform 0.2s, color 0.2s;
-        }
+        .favorite-btn { position: absolute; top: 10px; right: 10px; font-size: 24px; cursor: pointer; background: none; border: none; color: #bdc3c7; transition: transform 0.2s, color 0.2s; }
         .favorite-btn:hover { transform: scale(1.2); }
         .favorite-btn.favorited { color: #f1c40f; }
-
-        .emoji-display {
-            background-color: var(--bg-color);
-            width: 100px; height: 100px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 50px; margin-bottom: 20px;
-        }
-        
-        .copy-button {
-            background-color: var(--primary-color);
-            color: white; border: none; border-radius: 8px;
-            padding: 12px 20px; width: 100%; cursor: pointer;
-            font-size: 1em; font-weight: 500; font-family: var(--font-family);
-            transition: background-color 0.2s;
-        }
+        .emoji-display { background-color: var(--bg-color); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 20px; transition: background-color 0.3s ease; }
+        .copy-button { background-color: var(--primary-color); color: white; border: none; border-radius: 8px; padding: 12px 20px; width: 100%; cursor: pointer; font-size: 1em; font-weight: 500; font-family: var(--font-family); transition: background-color 0.2s; }
         .copy-button:hover { background-color: var(--primary-dark-color); }
     </style>
 </head>
 <body>
-
     <div class="page-container">
-        
         <aside class="ad-space ad-left">Espace Publicitaire Gauche</aside>
-
         <aside class="sidebar">
             <h2>Catégories</h2>
             <ul id="category-list"></ul>
-            <div class="sidebar-arrow" id="toggle-sidebar-btn"><</div>
         </aside>
-
         <div class="main-content">
-            <header><h1>Site des Émoji</h1></header>
+            <header>
+                <h1>Site des Émoji</h1>
+                <button id="theme-switcher-btn" class="theme-switcher" title="Changer de thème">🌙</button>
+            </header>
             <div class="search-container">
                 <input type="search" id="search-input" placeholder="Rechercher un émoji...">
             </div>
@@ -207,140 +98,28 @@
                 </div>
             </main>
         </div>
-        
         <aside class="ad-space ad-right">Espace Publicitaire Droit</aside>
-
     </div>
-
     <script>
-    // Les sélecteurs DOM restent les mêmes
-    const gridContainer = document.getElementById('grid-container');
-    const virtualSpacer = document.getElementById('virtual-spacer');
-    const emojiGrid = document.getElementById('emoji-grid');
-    const searchInput = document.getElementById('search-input');
-    const categoryList = document.getElementById('category-list');
-    const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-
-    // On déclare les variables qui contiendront nos données
-    let emojiData = [];
-    let originalEmojiData = [];
-
-    // Le reste de la logique (virtualisation, favoris, etc.) est identique
-    // mais on l'encapsule dans une fonction 'main' pour attendre le chargement des données.
-    
-    // ... (toutes les fonctions que nous avons écrites : renderVisibleItems, updateLayout, etc.) ...
-    // Note : Je les ai incluses ci-dessous pour que vous puissiez tout copier-coller.
-    
-    const ITEM_WIDTH = 160 + 25;
-    const ITEM_HEIGHT = 186 + 25;
-    let currentItems = [];
-    let isScrolling = false;
-    let favorites = new Set();
-
-    function updateLayout() {
-        const containerWidth = gridContainer.clientWidth;
-        const columns = Math.max(1, Math.floor(containerWidth / ITEM_WIDTH));
-        emojiGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-        const totalRows = Math.ceil(currentItems.length / columns);
-        virtualSpacer.style.height = `${totalRows * ITEM_HEIGHT}px`;
-        renderVisibleItems();
-    }
-
-    function renderVisibleItems() {
-        const columns = Math.max(1, Math.floor(gridContainer.clientWidth / ITEM_WIDTH));
-        const scrollTop = gridContainer.scrollTop;
-        const viewportHeight = gridContainer.clientHeight;
-        const buffer = viewportHeight;
-        const startIndex = Math.max(0, Math.floor((scrollTop - buffer) / ITEM_HEIGHT) * columns);
-        const endIndex = Math.min(currentItems.length, Math.ceil((scrollTop + viewportHeight + buffer) / ITEM_HEIGHT) * columns);
-        const visibleItems = currentItems.slice(startIndex, endIndex);
-        let html = '';
-        visibleItems.forEach(item => {
-            const isFavorited = favorites.has(item.id);
-            html += `<div class="emoji-card"><button class="favorite-btn ${isFavorited ? 'favorited' : ''}" data-id="${item.id}" title="Ajouter aux favoris">★</button><div class="emoji-display">${item.emoji}</div><button class="copy-button" data-text="${item.text}">Copier</button></div>`;
-        });
-        emojiGrid.innerHTML = html;
-        const offsetY = Math.floor(startIndex / columns) * ITEM_HEIGHT;
-        emojiGrid.style.transform = `translateY(${offsetY}px)`;
-        isScrolling = false;
-    }
-
-    function loadFavorites() { const e = localStorage.getItem("emojiFavorites"); e && (favorites = new Set(JSON.parse(e))) }
-    function saveFavorites() { localStorage.setItem("emojiFavorites", JSON.stringify(Array.from(favorites))) }
-    function toggleFavorite(emojiId) {
-        favorites.has(emojiId) ? favorites.delete(emojiId) : favorites.add(emojiId);
-        saveFavorites();
-        filterAndRender(document.querySelector('#category-list a.active').dataset.category, searchInput.value);
-        renderCategories();
-    }
-    function renderCategories() {
-        const e = document.querySelector("#category-list a.active")?.dataset.category;
-        let t = ["Toutes", ...new Set(originalEmojiData.map(e => e.category))];
-        favorites.size > 0 && t.splice(1, 0, "Favoris"), categoryList.innerHTML = "", t.forEach(t => {
-            const o = document.createElement("li"), a = document.createElement("a");
-            a.href = "#", a.textContent = t, a.dataset.category = t, t === e && a.classList.add("active"), o.appendChild(a), categoryList.appendChild(o)
-        }), document.querySelector("#category-list a.active") || document.querySelector("#category-list a").classList.add("active")
-    }
-    function filterAndRender(category, query) {
-        query = query.toLowerCase();
-        let filtered = emojiData;
-        if (category && category !== 'Toutes') {
-            if (category === 'Favoris') {
-                filtered = emojiData.filter(item => favorites.has(item.id));
-            } else {
-                filtered = emojiData.filter(item => item.category === category);
-            }
-        }
-        if (query) {
-            filtered = filtered.filter(item => item.text.toLowerCase().includes(query) || item.emoji.includes(query));
-        }
-        currentItems = filtered;
-        gridContainer.scrollTop = 0;
-        updateLayout();
-    }
-
-    // --- NOUVELLE PARTIE : On charge les données et on lance l'application ---
-    async function initializeApp() {
-        try {
-            // On charge le fichier JSON
-            const response = await fetch('emojis.json');
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            // On le transforme en objet JavaScript
-            const loadedData = await response.json();
-            
-            // Si vous voulez simuler beaucoup d'émojis, décommentez la ligne suivante
-            // emojiData = Array.from({ length: 5000 }, (_, i) => ({ ...loadedData[i % loadedData.length], id: `${loadedData[i % loadedData.length].id}-${i}`}));
-            
-            // Sinon, utilisez simplement les données chargées
-            emojiData = loadedData;
-            originalEmojiData = loadedData;
-
-            // Maintenant que les données sont prêtes, on peut lancer le reste du code
-            loadFavorites();
-            renderCategories();
-            currentItems = [...emojiData];
-            updateLayout();
-
-            // On attache les écouteurs d'événements
-            gridContainer.addEventListener('scroll', () => { if (!isScrolling) { isScrolling = true; window.requestAnimationFrame(renderVisibleItems); } });
-            window.addEventListener('resize', updateLayout);
-            searchInput.addEventListener("input", e => { filterAndRender(document.querySelector("#category-list a.active").dataset.category, e.target.value) });
-            categoryList.addEventListener("click", e => { if(e.target.tagName === "A") { e.preventDefault(); document.querySelectorAll("#category-list a").forEach(a => a.classList.remove("active")); e.target.classList.add("active"); filterAndRender(e.target.dataset.category, searchInput.value) }});
-            emojiGrid.addEventListener("click", e => { const t = e.target; if(t.classList.contains("copy-button")) { navigator.clipboard.writeText(t.dataset.text).then(() => { t.innerText = "Copié ! ✅"; setTimeout(() => { t.innerText = "Copier" }, 2e3) }) } if(t.classList.contains("favorite-btn")) { toggleFavorite(t.dataset.id) }});
-            toggleSidebarBtn.addEventListener("click", () => { document.body.classList.toggle("sidebar-collapsed") });
-
-        } catch (error) {
-            console.error("Impossible de charger les émojis:", error);
-            emojiGrid.innerHTML = "<p>Oups, une erreur est survenue lors du chargement des émojis.</p>";
-        }
-    }
-
-    // On lance l'application
-    initializeApp();
-
-</script>
+        const gridContainer = document.getElementById('grid-container');
+        const virtualSpacer = document.getElementById('virtual-spacer');
+        const emojiGrid = document.getElementById('emoji-grid');
+        const searchInput = document.getElementById('search-input');
+        const categoryList = document.getElementById('category-list');
+        const themeSwitcherBtn = document.getElementById('theme-switcher-btn');
+        let emojiData = [], originalEmojiData = [], currentItems = [], isScrolling = false, favorites = new Set();
+        
+        function updateLayout(){const e=gridContainer.clientWidth,t=Math.max(1,Math.floor(e/185));emojiGrid.style.gridTemplateColumns=`repeat(${t}, 1fr)`;const a=Math.ceil(currentItems.length/t);virtualSpacer.style.height=`${a*211}px`,renderVisibleItems()}function renderVisibleItems(){const e=Math.max(1,Math.floor(gridContainer.clientWidth/185)),t=gridContainer.scrollTop,a=gridContainer.clientHeight,i=a,r=211,l=Math.max(0,Math.floor((t-i)/r)*e),n=Math.min(currentItems.length,Math.ceil((t+a+i)/r)*e),o=currentItems.slice(l,n);let d="";o.forEach(e=>{const t=favorites.has(e.id);d+=`<div class="emoji-card"><button class="favorite-btn ${t?"favorited":""}" data-id="${e.id}" title="Ajouter aux favoris">★</button><div class="emoji-display">${e.emoji}</div><button class="copy-button" data-text="${e.text}">Copier</button></div>`}),emojiGrid.innerHTML=d;const s=Math.floor(l/e)*r;emojiGrid.style.transform=`translateY(${s}px)`,isScrolling=!1}function loadFavorites(){const e=localStorage.getItem("emojiFavorites");e&&(favorites=new Set(JSON.parse(e)))}function saveFavorites(){localStorage.setItem("emojiFavorites",JSON.stringify(Array.from(favorites)))}function renderCategories(){const e=document.querySelector("#category-list a.active")?.dataset.category;let t=["Toutes",...new Set(originalEmojiData.map(e=>e.category))];favorites.size>0&&t.splice(1,0,"Favoris"),categoryList.innerHTML="",t.forEach(t=>{const a=document.createElement("li"),i=document.createElement("a");i.href="#",i.textContent=t,i.dataset.category=t,t===e&&i.classList.add("active"),a.appendChild(i),categoryList.appendChild(a)}),document.querySelector("#category-list a.active")||document.querySelector("#category-list a").classList.add("active")}
+        
+        // La fonction mise à jour
+        function filterAndRender(e,t,a=!1){t=t.toLowerCase();let i=emojiData;e&&"Toutes"!==e&&(i="Favoris"===e?i.filter(e=>favorites.has(e.id)):i.filter(t=>t.category===e)),t&&(i=i.filter(e=>e.text.toLowerCase().includes(t)||e.emoji.includes(t))),currentItems=i,a||(gridContainer.scrollTop=0),updateLayout()}
+        
+        function setupTheme(){let e=localStorage.getItem("theme")||"light";"dark"===e?(document.documentElement.classList.add("dark-mode"),themeSwitcherBtn.innerHTML="☀️"):(themeSwitcherBtn.innerHTML="🌙"),themeSwitcherBtn.addEventListener("click",()=>{document.documentElement.classList.toggle("dark-mode"),document.documentElement.classList.contains("dark-mode")?(e="dark",themeSwitcherBtn.innerHTML="☀️"):(e="light",themeSwitcherBtn.innerHTML="🌙"),localStorage.setItem("theme",e)})}
+        
+        async function initializeApp(){try{const e=await fetch("emojis.json");if(!e.ok)throw new Error(`Erreur HTTP: ${e.status}`);const t=await e.json();emojiData=t,originalEmojiData=t,loadFavorites(),renderCategories(),currentItems=[...emojiData],updateLayout(),setupTheme(),gridContainer.addEventListener("scroll",()=>{isScrolling||(isScrolling=!0,window.requestAnimationFrame(renderVisibleItems))}),window.addEventListener("resize",updateLayout),searchInput.addEventListener("input",e=>{filterAndRender(document.querySelector("#category-list a.active").dataset.category,e.target.value)}),categoryList.addEventListener("click",e=>{e.target.tagName==="A"&&(e.preventDefault(),document.querySelectorAll("#category-list a").forEach(e=>e.classList.remove("active")),e.target.classList.add("active"),filterAndRender(e.target.dataset.category,searchInput.value))}),emojiGrid.addEventListener("click",e=>{const t=e.target;t.classList.contains("copy-button")&&navigator.clipboard.writeText(t.dataset.text).then(()=>{t.innerText="Copié ! ✅",setTimeout(()=>{t.innerText="Copier"},2e3)});
+        
+        // La nouvelle logique de clic pour les favoris
+        if(t.classList.contains("favorite-btn")){const a=t.dataset.id;t.classList.toggle("favorited"),favorites.has(a)?favorites.delete(a):favorites.add(a),saveFavorites(),renderCategories();const i=document.querySelector("#category-list a.active").dataset.category;"Favoris"===i&&!favorites.has(a)&&filterAndRender("Favoris",searchInput.value,!0)}})}catch(e){console.error("Impossible de charger les émojis:",e),emojiGrid.innerHTML="<p>Oups, une erreur est survenue lors du chargement des émojis.</p>"}}initializeApp();
+    </script>
 </body>
 </html>
-
